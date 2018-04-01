@@ -33,16 +33,27 @@ import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.majorkernelpanic.streaming.BuildConfig;
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Color;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Base64;
 import android.util.Log;
 
@@ -241,6 +252,31 @@ public class RtspServer extends Service {
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
 
 		start();
+
+		//Intent notificationIntent = new Intent(this, MainActivity.class);
+
+		//PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+		//		notificationIntent, 0);
+
+		Notification notification = new NotificationCompat.Builder(this, "1")
+				.setSmallIcon(android.R.drawable.alert_light_frame)
+				.setContentTitle("Streaming")
+				.setContentText("Service is running")
+				.setLights(Color.RED, 1000, 1000)
+				//.setContentIntent(pendingIntent)
+				.build();
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationChannel chan = new NotificationChannel("1", "stream", NotificationManager.IMPORTANCE_HIGH);
+			chan.setLightColor(Color.RED);
+			chan.enableLights(true);
+			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+			NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			if (service != null) {
+				service.createNotificationChannel(chan);
+			}
+		}
+		startForeground(1337, notification);
 	}
 
 	@Override

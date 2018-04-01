@@ -563,11 +563,11 @@ public abstract class VideoStream extends MediaStream {
 	}
 
 	protected synchronized void createCamera() throws RuntimeException {
-		if (mSurfaceView == null)
+		/*if (mSurfaceView == null)
 			throw new InvalidSurfaceException("Invalid surface !");
 		if (mSurfaceView.getHolder() == null || !mSurfaceReady) 
 			throw new InvalidSurfaceException("Invalid surface !");
-
+*/
 		if (mCamera == null) {
 			openCamera();
 			mUpdated = false;
@@ -602,10 +602,10 @@ public abstract class VideoStream extends MediaStream {
 				mCamera.setDisplayOrientation(mOrientation);
 
 				try {
-					if (mMode == MODE_MEDIACODEC_API_2) {
+					if (mMode == MODE_MEDIACODEC_API_2 && mSurfaceView != null) {
 						mSurfaceView.startGLThread();
 						mCamera.setPreviewTexture(mSurfaceView.getSurfaceTexture());
-					} else {
+					} else if (mSurfaceView != null){
 						mCamera.setPreviewDisplay(mSurfaceView.getHolder());
 					}
 				} catch (IOException e) {
@@ -652,7 +652,9 @@ public abstract class VideoStream extends MediaStream {
 		int[] max = VideoQuality.determineMaximumSupportedFramerate(parameters);
 		
 		double ratio = (double)mQuality.resX/(double)mQuality.resY;
-		mSurfaceView.requestAspectRatio(ratio);
+		if (mSurfaceView != null) {
+			mSurfaceView.requestAspectRatio(ratio);
+		}
 		
 		parameters.setPreviewFormat(mCameraImageFormat);
 		parameters.setPreviewSize(mQuality.resX, mQuality.resY);
